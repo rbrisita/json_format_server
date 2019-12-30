@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="jumbotron text-center">
+                    <h1 class="display-4 font-weight-bold">JSON Formatter</h1>
+                    <p class="lead">Enter JSON on the left to get formatted JSON on the right.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-6">
+                <form>
+                    <div class="form-group">
+                        <label for="json_input">Enter JSON</label>
+                        <textarea id="json_input" class="form-control" rows="20"></textarea>
+                    </div>
+
+                    <button type="button" class="btn btn-primary btn-lg float-left">Manual</button>
+                    <button type="button" class="btn btn-primary btn-lg float-right">Library</button>
+                </form>
+            </div>
+            <div class="col-sm-12 col-md-6 mt-sm-5 mt-md-0">
+                <form>
+                    <div class="form-group">
+                        <label for="json_output">JSON Formatted</label>
+                        <textarea id="json_output" readonly class="form-control" rows="20"></textarea>
+                    </div>
+                    <button id="copy_btn" type="button" class="btn btn-primary float-right">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-copy">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
