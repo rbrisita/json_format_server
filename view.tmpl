@@ -25,8 +25,8 @@
                         <textarea id="json_input" class="form-control" rows="20"></textarea>
                     </div>
 
-                    <button type="button" class="btn btn-primary btn-lg float-left">Manual</button>
-                    <button type="button" class="btn btn-primary btn-lg float-right">Library</button>
+                    <button id="man_btn" type="button" class="btn btn-primary btn-lg float-left">Manual</button>
+                    <button id="lib_btn" type="button" class="btn btn-primary btn-lg float-right">Library</button>
                 </form>
             </div>
             <div class="col-sm-12 col-md-6 mt-sm-5 mt-md-0">
@@ -47,6 +47,47 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/domready/1.0.8/ready.min.js"
+        integrity="sha256-z7v8HmIeZylwLaPn0X0Ym8dFyV0vkFVe4BkVW/iuwmQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"
+        integrity="sha256-S1J4GVHHDMiirir9qsXWc8ZWw74PHHafpsHp5PXtjTs=" crossorigin="anonymous"></script>
+    <script>
+        domready(function () {
+            document.getElementById('man_btn').onclick = event => {
+                console.log(event)
+                console.log(document.getElementById('json_input').value);
+                axios.post('/api/v1/man', {
+                    data: document.getElementById('json_input').value
+                }).then(resp => {
+                    console.log('RESP: ', resp);
+                    document.getElementById('json_output').value = resp.data.output
+                }).catch(error => {
+                    console.log('ERROR: ', error);
+                    document.getElementById('json_output').value = error
+                });
+            };
+
+            document.getElementById('lib_btn').onclick = event => {
+                console.log(event);
+                axios.post('/api/v1/lib', {
+                    data: document.getElementById('json_input').value
+                }).then(resp => {
+                    console.log('RESP: ', resp);
+                    document.getElementById('json_output').value = resp.data.output
+                }).catch(error => {
+                    console.log('ERROR: ', error);
+                    document.getElementById('json_output').value = error
+                });
+            };
+
+            document.getElementById('copy_btn').onclick = event => {
+                var copy_text = document.getElementById('json_output');
+                copy_text.select();
+                document.execCommand('copy');
+            };
+
+        })
+    </script>
 </body>
 
 </html>
