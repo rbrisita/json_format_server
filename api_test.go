@@ -27,7 +27,8 @@ func TestViewPage(t *testing.T) {
 		"",
 		viewHandler,
 		http.StatusOK,
-		"JSON Formatter")
+		"JSON Formatter",
+	)
 }
 
 /**
@@ -42,7 +43,8 @@ func TestStdEndpoint(t *testing.T) {
 		"application/json",
 		stdHandler,
 		http.StatusCreated,
-		"{}")
+		"{}",
+	)
 }
 
 /**
@@ -57,7 +59,8 @@ func TestSpecEndpoint(t *testing.T) {
 		jsonapi.MediaType,
 		specHandler,
 		http.StatusCreated,
-		"{}")
+		"{}",
+	)
 
 	// Check content type is up to JSON:API spec
 	result := res.Result()
@@ -80,8 +83,8 @@ func TestStdFormatsCorrectly(t *testing.T) {
 		"application/json",
 		stdHandler,
 		http.StatusCreated,
-		// `{\n\t"test": "test"\n\t}`)
-		pretty_json)
+		pretty_json,
+	)
 }
 
 // curl -d '{"data":{"test":"test"}}' http://localhost:8080/api/v1/spec
@@ -100,7 +103,42 @@ func TestSpecFormatsCorrectly(t *testing.T) {
 		jsonapi.MediaType,
 		specHandler,
 		http.StatusCreated,
-		pretty_json)
+		pretty_json,
+	)
+
+	// Check content type is up to JSON:API spec
+	result := res.Result()
+	if content_type := result.Header.Get("Content-type"); content_type != jsonapi.MediaType {
+		t.Errorf("handler returned unexpected body: got %v want %v", content_type, jsonapi.MediaType)
+	}
+}
+
+// curl -X POST http://localhost:8080/api/v1/std
+func TestStdFailure(t *testing.T) {
+	requestEndpoint(
+		t,
+		"POST",
+		API_VER+"/std",
+		"",
+		"application/json",
+		stdHandler,
+		http.StatusUnprocessableEntity,
+		`{"error": "EOF"}`,
+	)
+}
+
+// curl -X POST http://localhost:8080/api/v1/spec
+func TestSpecFailure(t *testing.T) {
+	res := requestEndpoint(
+		t,
+		"POST",
+		API_VER+"/spec",
+		"",
+		jsonapi.MediaType,
+		specHandler,
+		http.StatusUnprocessableEntity,
+		`{"error": "EOF"}`,
+	)
 
 	// Check content type is up to JSON:API spec
 	result := res.Result()
