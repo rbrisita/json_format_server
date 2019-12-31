@@ -78,7 +78,12 @@
                 }).then(resp => {
                     json_output.value = resp.data;
                 }).catch(error => {
-                    json_output.value = error + ' (' + error.response.data.error + ')';
+                    try {
+                        data = JSON.parse(error.response.data);
+                        json_output.value = error + ' (' + data.error + ')';
+                    } catch (e) {
+                        json_output.value = e.name + ': ' + e.message + ' (Please fix input text area.)';
+                    }
                 });
             };
 
@@ -100,7 +105,12 @@
                 ).then(resp => {
                     json_output.value = resp.data;
                 }).catch(error => {
-                    json_output.value = error + ' (' + error.response.data.error + ')';
+                    try {
+                        data = JSON.parse(error.response.data);
+                        json_output.value = error + ' (' + data.error + ')';
+                    } catch (e) {
+                        json_output.value = e.name + ': ' + e.message + ' (Please fix input text area.)';
+                    }
                 });
             };
 
@@ -108,7 +118,6 @@
                 json_output.select();
                 document.execCommand('copy');
             };
-
         })
     </script>
 </body>
