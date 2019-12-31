@@ -49,7 +49,7 @@ func main() {
 
 	fmt.Printf("Listening on %s:%d...\n", *host, *port)
 
-	log.Fatal(http.ListenAndServe(*host+":"+strconv.FormatUint(*port, 10), rtr))
+	log.Fatal(http.ListenAndServe(*host+":"+strconv.FormatUint(*port, 10), rateLimit(rtr)))
 }
 
 /**
