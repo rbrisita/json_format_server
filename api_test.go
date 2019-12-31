@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	API_VER = "/api/v1"
+	API_VER           = "/api/v1"
+	CONTENT_TYPE_JSON = "application/json"
 )
 
 /**
@@ -21,7 +22,7 @@ const (
 func TestViewPage(t *testing.T) {
 	requestEndpoint(
 		t,
-		"GET",
+		http.MethodGet,
 		"/",
 		"",
 		"",
@@ -37,10 +38,10 @@ func TestViewPage(t *testing.T) {
 func TestStdEndpoint(t *testing.T) {
 	requestEndpoint(
 		t,
-		"POST",
+		http.MethodPost,
 		API_VER+"/std",
 		`{"data":"{}"}`,
-		"application/json",
+		CONTENT_TYPE_JSON,
 		stdHandler,
 		http.StatusCreated,
 		"{}",
@@ -53,9 +54,9 @@ func TestStdEndpoint(t *testing.T) {
 func TestSpecEndpoint(t *testing.T) {
 	res := requestEndpoint(
 		t,
-		"POST",
+		http.MethodPost,
 		API_VER+"/spec",
-		`{}`,
+		"{}",
 		jsonapi.MediaType,
 		specHandler,
 		http.StatusCreated,
@@ -77,10 +78,10 @@ func TestStdFormatsCorrectly(t *testing.T) {
 
 	requestEndpoint(
 		t,
-		"POST",
+		http.MethodPost,
 		API_VER+"/std",
 		`{"data":"{\"test\":\"test\"}"}`,
-		"application/json",
+		CONTENT_TYPE_JSON,
 		stdHandler,
 		http.StatusCreated,
 		pretty_json,
@@ -97,7 +98,7 @@ func TestSpecFormatsCorrectly(t *testing.T) {
 
 	res := requestEndpoint(
 		t,
-		"POST",
+		http.MethodPost,
 		API_VER+"/spec",
 		`{"data":{"test":"test"}}`,
 		jsonapi.MediaType,
@@ -117,10 +118,10 @@ func TestSpecFormatsCorrectly(t *testing.T) {
 func TestStdFailure(t *testing.T) {
 	requestEndpoint(
 		t,
-		"POST",
+		http.MethodPost,
 		API_VER+"/std",
 		"",
-		"application/json",
+		CONTENT_TYPE_JSON,
 		stdHandler,
 		http.StatusUnprocessableEntity,
 		`{"error": "EOF"}`,
@@ -131,7 +132,7 @@ func TestStdFailure(t *testing.T) {
 func TestSpecFailure(t *testing.T) {
 	res := requestEndpoint(
 		t,
-		"POST",
+		http.MethodPost,
 		API_VER+"/spec",
 		"",
 		jsonapi.MediaType,
