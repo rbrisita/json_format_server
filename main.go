@@ -3,13 +3,19 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/gorilla/mux"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"text/template"
+
+	"github.com/google/jsonapi"
+	"github.com/gorilla/mux"
 )
 
 var templates = template.Must(template.ParseFiles("view.tmpl"))
+
+type Dummy struct{}
 
 type JSONInput struct {
 	Data string
@@ -26,39 +32,65 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "view", &JSONInput{Data: ""})
 }
 
-func manHandler(w http.ResponseWriter, r *http.Request) {
+func stdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var t JSONInput
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte(`{"error": "` + err.Error() + `"}`))
+		errorResponse(w, err)
 		return
 	}
 
-	var json_pretty bytes.Buffer
-	err = json.Indent(&json_pretty, []byte(t.Data), "", "\t")
+	pretty_json, err := getPrettyJSONString([]byte(t.Data))
 	if err != nil {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte(`{"error": "` + err.Error() + `"}`))
+		errorResponse(w, err)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`'` + string(json_pretty.Bytes()) + `'`))
+	w.Write([]byte(pretty_json))
 }
 
-func libHandler(w http.ResponseWriter, r *http.Request) {
-	var t JSONInput
-	err := json.NewDecoder(r.Body).Decode(&t)
+func specHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", jsonapi.MediaType)
+
+	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		t.Data = err.Error()
+		errorResponse(w, err)
+		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	var d Dummy
+	err = jsonapi.UnmarshalPayload(bytes.NewReader(b), &d)
+	if err != nil {
+		errorResponse(w, err)
+		return
+	}
+
+	pretty_json, err := getPrettyJSONString(b)
+	if err != nil {
+		errorResponse(w, err)
+		return
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`'` + t.Data + `'`))
+	w.Write([]byte(pretty_json))
+}
+
+func getPrettyJSONString(src []byte) (string, error) {
+	var json_pretty bytes.Buffer
+	err := json.Indent(&json_pretty, src, "", "\t")
+	if err != nil {
+		return "", err
+	}
+
+	return string(json_pretty.Bytes()), nil
+}
+
+func errorResponse(w http.ResponseWriter, err error) {
+	w.WriteHeader(http.StatusUnprocessableEntity)
+	w.Write([]byte(`{"error": "` + err.Error() + `"}`))
 }
 
 func main() {
@@ -66,8 +98,10 @@ func main() {
 	r.HandleFunc("/", viewHandler)
 
 	api := r.PathPrefix("/api/v1").Subrouter()
-	api.HandleFunc("/man", manHandler).Methods(http.MethodPost)
-	api.HandleFunc("/lib", libHandler).Methods(http.MethodPost)
+	api.HandleFunc("/std", stdHandler).Methods(http.MethodPost)
+	api.HandleFunc("/spec", specHandler).Methods(http.MethodPost)
+
+	fmt.Println("Listening on Localhost:8080...")
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
