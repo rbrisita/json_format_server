@@ -17,11 +17,11 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row mb-5">
             <div class="col-sm-12 col-md-6">
                 <form>
                     <div class="form-group">
-                        <label for="json_input">Enter JSON</label>
+                        <label for="json_input">Input</label>
                         <textarea id="json_input" class="form-control" rows="20"></textarea>
                     </div>
 
@@ -32,7 +32,7 @@
             <div class="col-sm-12 col-md-6 mt-sm-5 mt-md-0">
                 <form>
                     <div class="form-group">
-                        <label for="json_output">JSON Formatted</label>
+                        <label for="json_output">Output</label>
                         <textarea id="json_output" readonly class="form-control" rows="20"></textarea>
                     </div>
                     <button id="copy_btn" type="button" class="btn btn-primary float-right">
@@ -54,16 +54,12 @@
     <script>
         domready(function () {
             document.getElementById('man_btn').onclick = event => {
-                console.log(event)
-                console.log(document.getElementById('json_input').value);
                 axios.post('/api/v1/man', {
                     data: document.getElementById('json_input').value
                 }).then(resp => {
-                    console.log('RESP: ', resp);
-                    document.getElementById('json_output').value = resp.data.output
+                    document.getElementById('json_output').value = resp.data
                 }).catch(error => {
-                    console.log('ERROR: ', error);
-                    document.getElementById('json_output').value = error
+                    document.getElementById('json_output').value = error + ' (' + error.response.data.error + ')';
                 });
             };
 
@@ -73,10 +69,10 @@
                     data: document.getElementById('json_input').value
                 }).then(resp => {
                     console.log('RESP: ', resp);
-                    document.getElementById('json_output').value = resp.data.output
+                    document.getElementById('json_output').value = resp.data
                 }).catch(error => {
                     console.log('ERROR: ', error);
-                    document.getElementById('json_output').value = error
+                    document.getElementById('json_output').value = error + ' (' + error.response.data.error + ')';
                 });
             };
 
