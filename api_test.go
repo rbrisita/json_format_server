@@ -66,6 +66,49 @@ func TestSpecEndpoint(t *testing.T) {
 	}
 }
 
+// curl -d '{"data":"{\"test\":\"test\"}"}' http://localhost:8080/api/v1/std
+func TestStdFormatsCorrectly(t *testing.T) {
+	pretty_json := `{
+	"test": "test"
+}`
+
+	requestEndpoint(
+		t,
+		"POST",
+		API_VER+"/std",
+		`{"data":"{\"test\":\"test\"}"}`,
+		"application/json",
+		stdHandler,
+		http.StatusCreated,
+		// `{\n\t"test": "test"\n\t}`)
+		pretty_json)
+}
+
+// curl -d '{"data":{"test":"test"}}' http://localhost:8080/api/v1/spec
+func TestSpecFormatsCorrectly(t *testing.T) {
+	pretty_json := `{
+	"data": {
+		"test": "test"
+	}
+}`
+
+	res := requestEndpoint(
+		t,
+		"POST",
+		API_VER+"/spec",
+		`{"data":{"test":"test"}}`,
+		jsonapi.MediaType,
+		specHandler,
+		http.StatusCreated,
+		pretty_json)
+
+	// Check content type is up to JSON:API spec
+	result := res.Result()
+	if content_type := result.Header.Get("Content-type"); content_type != jsonapi.MediaType {
+		t.Errorf("handler returned unexpected body: got %v want %v", content_type, jsonapi.MediaType)
+	}
+}
+
 /**
 * requestEndpoint is a boilerplate function to make testing endpoints a one liner.
 **/
@@ -112,5 +155,3 @@ func requestEndpoint(
 
 	return res
 }
-
-// curl -d '{"data":"{\"test\":\"test\"}"}' http://localhost:8080/api/v1/std
