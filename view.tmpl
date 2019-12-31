@@ -25,8 +25,9 @@
                         <textarea id="json_input" class="form-control" rows="20"></textarea>
                     </div>
 
-                    <button id="man_btn" type="button" class="btn btn-primary btn-lg float-left">Manual</button>
-                    <button id="lib_btn" type="button" class="btn btn-primary btn-lg float-right">Library</button>
+                    <button id="std_btn" type="button" class="btn btn-primary btn-lg float-left">Std JSON Lib</button>
+                    <button id="spec_btn" type="button" class="btn btn-primary btn-lg float-right">JSON:API
+                        Spec</button>
                 </form>
             </div>
             <div class="col-sm-12 col-md-6 mt-sm-5 mt-md-0">
@@ -53,32 +54,58 @@
         integrity="sha256-S1J4GVHHDMiirir9qsXWc8ZWw74PHHafpsHp5PXtjTs=" crossorigin="anonymous"></script>
     <script>
         domready(function () {
-            document.getElementById('man_btn').onclick = event => {
-                axios.post('/api/v1/man', {
-                    data: document.getElementById('json_input').value
+            const json_input = document.getElementById('json_input');
+            const json_output = document.getElementById('json_output');
+            const jsonapi_options = {
+                headers: {
+                    'Content-Type': 'application/vnd.api+json',
+                    'Accept': 'application/vnd.api+json',
+                }
+            };
+
+            document.getElementById('std_btn').onclick = event => {
+                json_output.value = '';
+                const data = json_input.value;
+                if (!data) {
+                    json_output.value = 'Please enter JSON in input text area.';
+                    return;
+                }
+
+                axios.post('/api/v1/std', {
+                    data: json_input.value
+                }, {
+                    transformResponse: res => res
                 }).then(resp => {
-                    document.getElementById('json_output').value = resp.data
+                    json_output.value = resp.data;
                 }).catch(error => {
-                    document.getElementById('json_output').value = error + ' (' + error.response.data.error + ')';
+                    json_output.value = error + ' (' + error.response.data.error + ')';
                 });
             };
 
-            document.getElementById('lib_btn').onclick = event => {
-                console.log(event);
-                axios.post('/api/v1/lib', {
-                    data: document.getElementById('json_input').value
-                }).then(resp => {
-                    console.log('RESP: ', resp);
-                    document.getElementById('json_output').value = resp.data
+            document.getElementById('spec_btn').onclick = event => {
+                json_output.value = '';
+
+                let data = '';
+                try {
+                    data = JSON.parse(json_input.value);
+                } catch (e) {
+                    json_output.value = e.name + ': ' + e.message + ' (Please fix input text area.)';
+                    return;
+                }
+
+                axios.post(
+                    '/api/v1/spec',
+                    data,
+                    { ...jsonapi_options, transformResponse: res => res }
+                ).then(resp => {
+                    json_output.value = resp.data;
                 }).catch(error => {
-                    console.log('ERROR: ', error);
-                    document.getElementById('json_output').value = error + ' (' + error.response.data.error + ')';
+                    json_output.value = error + ' (' + error.response.data.error + ')';
                 });
             };
 
             document.getElementById('copy_btn').onclick = event => {
-                var copy_text = document.getElementById('json_output');
-                copy_text.select();
+                json_output.select();
                 document.execCommand('copy');
             };
 
