@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
+	"math/rand"
 	"net/http"
 	"sync"
+	"time"
 
 	"golang.org/x/time/rate"
 )
@@ -46,6 +48,10 @@ func rateLimit(next http.Handler) http.Handler {
 			http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
 			return
 		}
+
+		// Generate a random number from 500 - 1500 to create fake process time
+		fake_process_time := rand.Intn(1500-500) + 500
+		time.Sleep(time.Millisecond * time.Duration(fake_process_time))
 
 		next.ServeHTTP(w, r)
 	})
