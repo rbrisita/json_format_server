@@ -29,7 +29,6 @@ var (
 * init by parsing flags and creating shared data structure.
 **/
 func init() {
-	flag.Parse()
 	clients = &Clients{
 		mux: &sync.RWMutex{},
 		ips: make(map[string]*rate.Limiter),
@@ -50,7 +49,6 @@ func rateLimit(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
-
 }
 
 /**
