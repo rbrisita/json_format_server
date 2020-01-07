@@ -9,4 +9,4 @@ go run main.go middleware.go
 # Command Line Arguments
 main.go [--host "localhost"] [--port 8080]
 
-middleware.go [--max 10] [--burst 1]
+middleware.go [--max 10] [--burst 10]
