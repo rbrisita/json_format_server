@@ -4,6 +4,8 @@ import (
 	"flag"
 	"math/rand"
 	"net/http"
+	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -23,7 +25,7 @@ type Clients struct {
 **/
 var (
 	max     = flag.Uint("max", 10, "Maximum connections per client per second.")
-	burst   = flag.Int("burst", 1, "Maximum burst size events.")
+	burst   = flag.Int("burst", 10, "Maximum burst size events.")
 	clients *Clients
 )
 
@@ -49,9 +51,12 @@ func rateLimit(next http.Handler) http.Handler {
 			return
 		}
 
-		// Generate a random number from 500 - 1500 to create fake process time
-		fake_process_time := rand.Intn(1500-500) + 500
-		time.Sleep(time.Millisecond * time.Duration(fake_process_time))
+		// Check if in testing environment
+		if !strings.HasSuffix(os.Args[0], ".test") {
+			// Generate a random number from 500 - 1500 to create fake process time
+			fake_process_time := rand.Intn(1500-500) + 500
+			time.Sleep(time.Millisecond * time.Duration(fake_process_time))
+		}
 
 		next.ServeHTTP(w, r)
 	})
